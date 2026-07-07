@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trevel — Performance Marketing Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#141412;
+    --bg-soft:#1b1a17;
+    --panel:#f7f4ec;
+    --panel-dim:#efeadd;
+    --ink:#1c1b17;
+    --ink-soft:#4a473f;
+    --muted:#8f8b80;
+    --muted-on-dark:#9a968b;
+    --amber:#e3a63a;
+    --amber-dim:#c98f28;
+    --slate:#41615a;
+    --line:#2b2a25;
+    --line-on-panel:#ded7c4;
+    --radius:14px;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--panel);
+    font-family:'Source Serif 4', serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.eyebrow,.mono,nav,.stat-label,.tag,.btn{
+    font-family:'Space Grotesk', sans-serif;
+  }
+  .mono, .meter, .stat-value, td.num, .budget-amt{
+    font-family:'IBM Plex Mono', monospace;
+  }
+  a{color:var(--amber);}
+
+  /* ---------- Layout shell ---------- */
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 28px;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(20,20,18,0.86);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:var(--maxw); margin:0 auto; padding:14px 28px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .wordmark{
+    font-weight:700; letter-spacing:0.02em; font-size:15px; color:var(--panel);
+    display:flex; align-items:center; gap:8px;
+  }
+  .wordmark .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block;}
+  .route-nav{display:flex; gap:22px; list-style:none; margin:0; padding:0;}
+  .route-nav a{
+    color:var(--muted-on-dark); text-decoration:none; font-size:13px; font-weight:500;
+    letter-spacing:0.02em; position:relative; padding-bottom:4px;
+    transition:color .2s ease;
+  }
+  .route-nav a.active, .route-nav a:hover{color:var(--amber);}
+  .route-nav a.active::after{
+    content:""; position:absolute; left:0; right:0; bottom:-6px; height:2px; background:var(--amber);
+  }
+  @media (max-width:760px){ .route-nav{display:none;} }
+
+  /* ---------- Hero ---------- */
+  .hero{padding:88px 0 64px; position:relative;}
+  .eyebrow{
+    color:var(--amber); font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase;
+    font-weight:600; margin:0 0 18px;
+  }
+  h1.headline{
+    font-size:clamp(34px, 5.2vw, 58px); line-height:1.06; letter-spacing:-0.01em;
+    margin:0 0 22px; font-weight:600; color:var(--panel); max-width:820px;
+  }
+  h1.headline em{
+    font-style:normal; color:var(--amber); font-weight:600;
+  }
+  .subhead{
+    font-size:18px; color:var(--muted-on-dark); max-width:600px; margin:0 0 40px;
+  }
+  .dash{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden;
+    max-width:760px;
+  }
+  .dash-cell{background:var(--bg-soft); padding:16px 18px;}
+  .stat-value{font-size:22px; color:var(--amber); font-weight:600; display:block;}
+  .stat-label{font-size:11.5px; color:var(--muted-on-dark); text-transform:uppercase; letter-spacing:0.06em; margin-top:4px; display:block;}
+  @media (max-width:640px){ .dash{grid-template-columns:repeat(2,1fr);} }
+
+  /* ---------- Route rail ---------- */
+  .route-shell{position:relative; padding:20px 0 100px;}
+  .route-line{
+    position:absolute; left:22px; top:0; bottom:100px; width:2px;
+    background:linear-gradient(to bottom, var(--line) 0%, var(--line) 100%);
+  }
+  .route-line-fill{
+    position:absolute; left:0; top:0; width:2px; height:0%;
+    background:linear-gradient(to bottom, var(--amber), var(--slate));
+    transition:height .1s linear;
+  }
+  @media (max-width:640px){ .route-line, .route-line-fill{display:none;} }
+
+  .stop{position:relative; padding-left:64px; margin-bottom:76px;}
+  @media (max-width:640px){ .stop{padding-left:0;} }
+  .stop-marker{
+    position:absolute; left:12px; top:2px; width:22px; height:22px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--line); display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; color:var(--muted-on-dark); font-family:'IBM Plex Mono',monospace;
+    transition:border-color .3s ease, color .3s ease, background .3s ease;
+  }
+  .stop.visible .stop-marker{border-color:var(--amber); color:var(--amber); background:var(--bg-soft);}
+  @media (max-width:640px){ .stop-marker{display:none;} }
+
+  .stop-eyebrow{color:var(--muted-on-dark); font-size:12px; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 8px; font-weight:600;}
+  .stop h2{font-size:clamp(24px,3vw,32px); color:var(--panel); margin:0 0 6px; font-weight:600; letter-spacing:-0.01em;}
+  .stop .stop-sub{color:var(--muted-on-dark); font-size:15.5px; margin:0 0 28px; max-width:620px;}
+
+  /* ---------- Panels (paper cards) ---------- */
+  .panel{
+    background:var(--panel); color:var(--ink); border-radius:var(--radius);
+    padding:30px 32px; margin-bottom:20px;
+    opacity:0; transform:translateY(14px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .panel.in{opacity:1; transform:translateY(0);}
+  .panel h3{
+    font-size:13px; text-transform:uppercase; letter-spacing:0.08em; color:var(--slate);
+    margin:0 0 14px; font-weight:600;
+  }
+  .panel p{margin:0 0 12px; color:var(--ink-soft); font-size:15.5px;}
+  .panel p:last-child{margin-bottom:0;}
+  .panel ul{margin:0 0 12px; padding-left:20px; color:var(--ink-soft); font-size:15.5px;}
+  .panel li{margin-bottom:7px;}
+  .panel li:last-child{margin-bottom:0;}
+  .panel strong{color:var(--ink); font-weight:600;}
+  .panel-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  @media (max-width:760px){ .panel-grid{grid-template-columns:1fr;} }
+
+  .callout{
+    background:var(--bg-soft); border:1px solid var(--line); border-left:3px solid var(--amber);
+    border-radius:8px; padding:18px 20px; margin:8px 0 20px; color:var(--panel);
+  }
+  .callout p{color:var(--muted-on-dark); font-size:14.5px; margin:0; font-style:italic; line-height:1.65;}
+
+  /* segment cards for Q1 */
+  .segcards{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px;}
+  @media (max-width:900px){ .segcards{grid-template-columns:1fr;} }
+  .segcard{
+    background:var(--panel); border-radius:var(--radius); padding:24px;
+    opacity:0; transform:translateY(14px); transition:opacity .5s ease, transform .5s ease;
+  }
+  .segcard.in{opacity:1; transform:translateY(0);}
+  .segcard .tag{
+    display:inline-block; font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--slate); background:#e4ecea; padding:4px 9px; border-radius:20px; margin-bottom:12px;
+  }
+  .segcard h4{font-size:17px; margin:0 0 12px; color:var(--ink); font-weight:600;}
+  .segcard .field-label{font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); margin:14px 0 4px; font-weight:600;}
+  .segcard .field-label:first-of-type{margin-top:0;}
+  .segcard p{font-size:14px; color:var(--ink-soft); margin:0;}
+
+  /* tables */
+  table{width:100%; border-collapse:collapse; margin:6px 0 18px; font-size:14.5px;}
+  th{
+    text-align:left; font-family:'Space Grotesk',sans-serif; font-size:11.5px; text-transform:uppercase;
+    letter-spacing:0.05em; color:var(--muted); font-weight:600; padding:8px 10px; border-bottom:1px solid var(--line-on-panel);
+  }
+  td{padding:10px 10px; border-bottom:1px solid var(--line-on-panel); color:var(--ink-soft); vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td.num{color:var(--slate); font-weight:600;}
+
+  /* budget bars */
+  .budget-row{display:flex; align-items:center; gap:14px; margin-bottom:10px;}
+  .budget-label{width:230px; font-size:13.5px; color:var(--ink-soft); flex-shrink:0;}
+  .budget-bar-track{flex:1; background:var(--panel-dim); border-radius:6px; height:10px; overflow:hidden;}
+  .budget-bar-fill{height:100%; background:linear-gradient(to right, var(--slate), var(--amber-dim)); border-radius:6px;}
+  .budget-amt{width:74px; text-align:right; font-size:13px; color:var(--ink); font-weight:600; flex-shrink:0;}
+
+  /* week timeline */
+  .weekline{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px;}
+  @media (max-width:760px){ .weekline{grid-template-columns:1fr;} }
+  .week{background:var(--panel-dim); border-radius:10px; padding:16px 16px;}
+  .week .wk-num{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--slate); font-weight:600; letter-spacing:0.05em;}
+  .week h5{font-size:14.5px; margin:6px 0 8px; color:var(--ink);}
+  .week p{font-size:13px; margin:0; color:var(--ink-soft);}
+
+  /* math block for Q4 */
+  .math-block{
+    background:var(--bg-soft); border:1px solid var(--line); border-radius:10px;
+    padding:20px 22px; margin-bottom:20px;
+  }
+  .math-block p{color:var(--muted-on-dark); font-size:14.5px; margin:0 0 10px;}
+  .math-block p:last-child{margin-bottom:0;}
+  .math-line{
+    font-family:'IBM Plex Mono',monospace; color:var(--amber); font-size:14px; display:block; margin:4px 0;
+  }
+
+  footer{
+    border-top:1px solid var(--line); padding:36px 0 60px; margin-top:20px;
+    color:var(--muted-on-dark); font-size:13px; text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="wordmark"><span class="dot"></span>TREVEL — ASSESSMENT</div>
+    <ul class="route-nav" id="routeNav">
+      <li><a href="#q1" data-target="q1">01 Market</a></li>
+      <li><a href="#q2" data-target="q2">02 Strategy</a></li>
+      <li><a href="#q3" data-target="q3">03 Execution</a></li>
+      <li><a href="#q4" data-target="q4">04 Growth</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="hero">
+    <p class="eyebrow">Performance Marketing Intern — Written Assessment</p>
+    <h1 class="headline">Every rider has a route.<br>Most never <em>start</em> theirs.</h1>
+    <p class="subhead">1,000 people install Trevel every month. Only 200 ever take a first ride. This plan is built around that gap — not just around buying more installs.</p>
+    <div class="dash">
+      <div class="dash-cell"><span class="stat-value">1,000</span><span class="stat-label">Monthly Installs</span></div>
+      <div class="dash-cell"><span class="stat-value">20%</span><span class="stat-label">Install → First Ride</span></div>
+      <div class="dash-cell"><span class="stat-value">₹500</span><span class="stat-label">Blended CAC</span></div>
+      <div class="dash-cell"><span class="stat-value">70%</span><span class="stat-label">Bookings From Repeat</span></div>
+    </div>
+  </section>
+
+  <div class="route-shell">
+    <div class="route-line"></div>
+    <div class="route-line-fill" id="routeFill"></div>
+
+    <!-- Q1 -->
+    <div class="stop" id="q1">
+      <div class="stop-marker">01</div>
+      <p class="stop-eyebrow">Question 1</p>
+      <h2>Market Understanding</h2>
+      <p class="stop-sub">Trevel sells to three very different people. I've mapped who they are, what actually triggers a booking, and where each one could slip away — then picked the one this plan is built for.</p>
+
+      <div class="segcards">
+        <div class="segcard">
+          <span class="tag">Daily Commuters</span>
+          <h4>Executive tier · ₹8,999/mo</h4>
+          <p class="field-label">Who</p>
+          <p>Working professionals, 26–42, at Gurugram corporate hubs — Cyberhub, Golf Course Road, Udyog Vihar. Could afford a car, don't want the daily traffic and parking stress of driving it.</p>
+          <p class="field-label">Decision trigger</p>
+          <p>A bad commute morning — a cancelled Ola/Uber 10 minutes before a meeting, or 3x surge in the rain. The switch is reactive, not proactive.</p>
+          <p class="field-label">Why not Trevel</p>
+          <p>The subscription needs upfront commitment. Hybrid/WFH schedules may not generate enough rides to justify the fixed cost.</p>
+          <p class="field-label">Competitor move</p>
+          <p>Uber Reserve's scheduled rides chip at the reliability pitch. Response: reliability is structural here (owned fleet, salaried drivers) — not a feature bolted onto a marketplace.</p>
+        </div>
+
+        <div class="segcard">
+          <span class="tag">Corporate Clients</span>
+          <h4>B2B employee transport</h4>
+          <p class="field-label">Who</p>
+          <p>HR/Admin/Facilities heads at 200–2,000-employee companies, buying on an annual procurement cycle — not a daily decision.</p>
+          <p class="field-label">Decision trigger</p>
+          <p>A renewal cycle with an incumbent vendor, usually paired with an incident — an accident, a safety audit, or escalated employee complaints.</p>
+          <p class="field-label">Why not Trevel</p>
+          <p>Multi-year lock-ins and sunk capex with existing fleet vendors. The blocker is switching cost, not product quality.</p>
+          <p class="field-label">Competitor move</p>
+          <p>Fleet vendors are pitching EVs for ESG targets. Response: Trevel already owns the EV fleet — lead with ready-made emissions reporting they can't match yet.</p>
+        </div>
+
+        <div class="segcard">
+          <span class="tag">Airport Transfers</span>
+          <h4>One-off, high-intent</h4>
+          <p class="field-label">Who</p>
+          <p>Frequent flyers, 28–50, booking a one-off trip to/from IGI — outside their normal commute pattern entirely.</p>
+          <p class="field-label">Decision trigger</p>
+          <p>The night before a flight, when a missed pickup means a missed flight — stakes far higher than a late office arrival.</p>
+          <p class="field-label">Why not Trevel</p>
+          <p>Zero loyalty pull. It's a price/speed comparison in the moment — Trevel has to win the booking, not the relationship.</p>
+          <p class="field-label">Competitor move</p>
+          <p>Uber/Ola's "guaranteed pickup" products close this gap. Response: match the guarantee, but make it provable — an on-time-or-refund policy, backed by salaried drivers with no cancel-for-surge incentive.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Why Daily Commuters, for Q2–Q3</h3>
+        <p>Every baseline metric Trevel gave — installs, active riders, repeat share — is a <strong>recurring-usage</strong> metric, not a one-off booking metric. That's the Commuter segment. It's also the fastest-moving segment for a 1–3 person team: no long B2B sales cycle like Corporate, and a growth engine built on habit rather than one-time bookings like Airport.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="stop" id="q2">
+      <div class="stop-marker">02</div>
+      <p class="stop-eyebrow">Question 2</p>
+      <h2>Marketing Strategy</h2>
+      <p class="stop-sub">A one-page plan for the Commuter segment — built to fix the conversion leak, not just feed the top of the funnel.</p>
+
+      <div class="panel">
+        <h3>Objective</h3>
+        <div class="callout"><p>Grow new Executive-tier sign-ups from ~200 to 240 new riders/month (+20%) in 30 days, holding blended CAC at or below ₹500 — by improving the install→first-ride conversion rate, not just buying more installs.</p></div>
+        <p>Buying more top-of-funnel installs without fixing the 80% who never ride just inflates spend without inflating riders.</p>
+      </div>
+
+      <div class="panel-grid">
+        <div class="panel">
+          <h3>Target Audience</h3>
+          <p>28–40, Gurugram corporate micro-markets, commuting 5 days/week to a fixed office, ₹15–40L household income, currently on Ola/Uber/own car — and has had at least one recent bad commute. That last trait is the real targeting signal.</p>
+        </div>
+        <div class="panel">
+          <h3>Positioning</h3>
+          <p style="font-style:italic;">"For Gurugram commuters tired of gambling on their ride to work, Trevel is the subscription EV service that guarantees the same car, same driver, same price — every day — because it owns its fleet instead of renting someone else's unpredictability."</p>
+        </div>
+      </div>
+
+      <div class="panel-grid">
+        <div class="panel">
+          <h3>Acquisition Mix</h3>
+          <ul>
+            <li><strong>Geo-targeted paid social/search</strong> near named corporate parks — intent concentrates here, city-wide targeting wastes spend.</li>
+            <li><strong>WhatsApp referral</strong> — cheapest CAC, and matches infra Trevel already has.</li>
+            <li><strong>On-ground QR/OOH</strong> at metro stops & park gates — the decision trigger happens right there.</li>
+            <li><em>Deliberately skipping</em> broad TV/print and generic search — priced for Ola/Uber's budget scale, not a ₹1L/month team.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Retention Strategy</h3>
+          <ul>
+            <li>Repeat riders already drive <strong>70%</strong> of bookings — protect that base first.</li>
+            <li>WhatsApp renewal nudges 5 days before subscription expiry.</li>
+            <li>A ride "streak" mechanic — small credit after 20 rides in a cycle.</li>
+            <li>Usage-triggered tier-upgrade nudges (Commuter → Executive) — upsell beats new acquisition on cost.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="stop" id="q3">
+      <div class="stop-marker">03</div>
+      <p class="stop-eyebrow">Question 3</p>
+      <h2>30-Day Execution Plan</h2>
+      <p class="stop-sub">Working within Trevel's existing ₹1,00,000/month spend — sized for a team of 1–3 people.</p>
+
+      <div class="panel">
+        <h3>Week-by-Week Roadmap</h3>
+        <div class="weekline">
+          <div class="week"><span class="wk-num">WEEK 1</span><h5>Setup & launch</h5><p>Fix GA4/GTM tagging. Launch geo-targeted ads near 3 corporate parks. Soft-launch referral to existing riders via WhatsApp.</p></div>
+          <div class="week"><span class="wk-num">WEEK 2</span><h5>Add ground layer</h5><p>Deploy QR posters at metro & park gates. Start "first ride, zero risk" WhatsApp nudges to non-converted installs.</p></div>
+          <div class="week"><span class="wk-num">WEEK 3</span><h5>Optimize</h5><p>Pull CAC-by-channel data. Kill the weakest channel, reallocate. Publish first rider testimonial content.</p></div>
+          <div class="week"><span class="wk-num">WEEK 4</span><h5>Consolidate</h5><p>Double down on top 2 channels only. Report CAC & funnel conversion. Plan month 2 on what actually worked.</p></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Campaign Calendar</h3>
+        <table>
+          <tr><th>Campaign</th><th>What it is</th><th>Weeks</th></tr>
+          <tr><td><strong>Zero Cancellation Week</strong></td><td>Geo-targeted ads near 3 corporate parks, built on the reliability promise</td><td>1–2</td></tr>
+          <tr><td><strong>Bring a Colleague</strong></td><td>WhatsApp referral — ride credit for referrer and referee</td><td>2–4</td></tr>
+          <tr><td><strong>First Ride, Zero Risk</strong></td><td>Nudge sequence targeting installs who haven't booked yet</td><td>3–4</td></tr>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h3>Budget Allocation — ₹1,00,000</h3>
+        <div class="budget-row"><div class="budget-label">Geo-targeted paid social/search</div><div class="budget-bar-track"><div class="budget-bar-fill" style="width:45%"></div></div><div class="budget-amt">₹45,000</div></div>
+        <div class="budget-row"><div class="budget-label">Referral credits</div><div class="budget-bar-track"><div class="budget-bar-fill" style="width:20%"></div></div><div class="budget-amt">₹20,000</div></div>
+        <div class="budget-row"><div class="budget-label">OOH / QR placements</div><div class="budget-bar-track"><div class="budget-bar-fill" style="width:15%"></div></div><div class="budget-amt">₹15,000</div></div>
+        <div class="budget-row"><div class="budget-label">Creator / testimonial content</div><div class="budget-bar-track"><div class="budget-bar-fill" style="width:10%"></div></div><div class="budget-amt">₹10,000</div></div>
+        <div class="budget-row"><div class="budget-label">WhatsApp Business API tooling</div><div class="budget-bar-track"><div class="budget-bar-fill" style="width:10%"></div></div><div class="budget-amt">₹10,000</div></div>
+      </div>
+
+      <div class="panel">
+        <h3>Team Split</h3>
+        <p><strong>Solo:</strong> paid campaign setup & daily optimization, WhatsApp sequences, GA4/GTM tagging, weekly reporting.</p>
+        <p><strong>Needs support:</strong> ad/poster creative (Canva templates minimize this), ops for issuing referral credits. No dev work — referral tracking runs on promo codes, not a custom feature.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="stop" id="q4">
+      <div class="stop-marker">04</div>
+      <p class="stop-eyebrow">Question 4</p>
+      <h2>The Growth Challenge</h2>
+      <p class="stop-sub">+₹1,00,000, 30 days, 50% growth on installs and bookings — without letting CAC drift above ₹500.</p>
+
+      <div class="math-block">
+        <p>1,000 installs × 20% install→first-ride = 200 new riders. ₹1,00,000 ÷ 200 = <strong style="color:var(--panel)">₹500 CAC</strong>. That's where the number comes from — a cost per new rider, not per install.</p>
+        <p>Grow installs 50% to 1,500 at the same 20% conversion → 300 new riders. Spend the full ₹2,00,000 against that, and CAC becomes:</p>
+        <span class="math-line">₹2,00,000 ÷ 300 = ₹667 CAC — 33% over target.</span>
+        <p>Scaling spend and expecting flat CAC almost never works on its own. To hold ₹500, the incremental ₹1,00,000 has to produce its <em>own</em> 200 riders — which, combined with the base 200, means 400 total riders. At the current 20% conversion rate, that actually needs ~2,000 installs, not 1,500.</p>
+        <p style="color:var(--amber)">I'm treating 1,500 / 3,000 as the stated target — but the gap above is real, and the channel mix below is built to close as much of it as possible.</p>
+      </div>
+
+      <div class="panel">
+        <h3>Channel Mix — Additional ₹1,00,000</h3>
+        <table>
+          <tr><th>Channel</th><th>Budget</th><th>Target CAC</th><th>Est. new riders</th></tr>
+          <tr><td>Referral program</td><td class="num">₹20,000</td><td class="num">₹300</td><td class="num">~66</td></tr>
+          <tr><td>Meta/Instagram lookalike + retargeting</td><td class="num">₹40,000</td><td class="num">₹550</td><td class="num">~72</td></tr>
+          <tr><td>Google Search + UAC installs</td><td class="num">₹30,000</td><td class="num">₹600</td><td class="num">~50</td></tr>
+          <tr><td>Hyperlocal (micro-influencer, OOH)</td><td class="num">₹10,000</td><td class="num">₹400</td><td class="num">~25</td></tr>
+        </table>
+        <p>Blended: ~213 riders on ₹1,00,000 ≈ <strong>₹469 CAC</strong> — kept deliberately under target to offset the pricier broad channels (Meta, Search) needed for raw volume.</p>
+      </div>
+
+      <div class="panel-grid">
+        <div class="panel">
+          <h3>Test Order</h3>
+          <ul>
+            <li>First-ride offer strength — this moves the actual bottleneck (conversion rate), not just install volume.</li>
+            <li>Ad angle: "zero-cancellation" vs. "fixed price/no surge" — unclear which pain point hits harder yet.</li>
+            <li>Referral credit size (₹100 vs ₹150) — cheap channel, outsized sensitivity to incentive.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Tracking Plan</h3>
+          <ul>
+            <li>GA4 funnel: install → signup → first_ride → subscription_purchased.</li>
+            <li>UTM on every paid link and WhatsApp broadcast.</li>
+            <li>Unique referral codes per channel — attributes WhatsApp/referral bookings GA4 can't see.</li>
+            <li>One shared Google Sheet for weekly CAC-by-channel — maintainable in an hour a week, no data team required.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Risks</h3>
+        <ul>
+          <li>CAC creep as paid spend scales — auction costs rise with volume.</li>
+          <li>Referral cannibalization inflates the channel's apparent efficiency.</li>
+          <li>Bookings can miss even if installs hit target, since bookings also depend on existing riders' ride frequency.</li>
+          <li>Corporate-park hyperlocal channels saturate within 2–3 weeks.</li>
+          <li>WhatsApp API opt-in/rate limits cap how far referral broadcasts can scale.</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h3>If Week 2 Is Off-Target</h3>
+        <ul>
+          <li><strong>Hard rule:</strong> any channel spending ≥₹15,000 with CAC &gt;20% over ₹500 after week 1 gets paused immediately — no waiting for month-end.</li>
+          <li>CAC high, bookings fine → tighten targeting radius before cutting spend.</li>
+          <li>Installs fine, CAC high → shift budget to referral/hyperlocal even if it slows the install number.</li>
+          <li>Conversion rate hasn't moved → raise the first-ride incentive immediately — this is the actual constraint, not install volume.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer>Trevel — Performance Marketing Intern Assessment · Prepared by Saamarth</footer>
+</div>
+
+<script>
+  // scrollspy + route line fill
+  const stops = document.querySelectorAll('.stop');
+  const navLinks = document.querySelectorAll('.route-nav a');
+  const fill = document.getElementById('routeFill');
+  const shell = document.querySelector('.route-shell');
+
+  function onScroll(){
+    const shellRect = shell.getBoundingClientRect();
+    const total = shell.offsetHeight;
+    const scrolled = Math.min(Math.max(-shellRect.top, 0), total);
+    fill.style.height = (scrolled/total*100) + '%';
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('visible');
+        const id = entry.target.id;
+        navLinks.forEach(l=>l.classList.toggle('active', l.dataset.target===id));
+      }
+    });
+  }, {threshold:0.25});
+  stops.forEach(s=>observer.observe(s));
+
+  const panelObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){ entry.target.classList.add('in'); }
+    });
+  }, {threshold:0.15});
+  document.querySelectorAll('.panel, .segcard').forEach(p=>panelObserver.observe(p));
+</script>
+
+</body>
+</html>
